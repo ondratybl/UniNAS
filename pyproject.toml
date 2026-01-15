@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uninas"
+version = "0.0.1"
+description = "Placeholder"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    {name = "Ondrej Tybl", email = "ondra@tybl.cz"}
+]
