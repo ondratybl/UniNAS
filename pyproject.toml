@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "uninas"
-version = "0.0.2"
-description = "string_to_model"
+version = "0.0.3"
+description = "walking through space"
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [
