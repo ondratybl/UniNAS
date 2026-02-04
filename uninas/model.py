@@ -51,7 +51,7 @@ class UNIModelCfg:
     drop_rate: float = 0.
     embed_dim: Tuple[int, ...] = (96, 192, 384, 768)
     depths: Tuple[int, ...] = (2, 3, 5, 2)
-    model_str: str = 'T/T//T/T/T//T/T/T/T/T//T/T'
+    model_str: str = '[["E", "E"], ["E", "R", "R"], ["T", "T", "T", "T", "T"], ["E", "R"]]'
     stem_width: Union[int, Tuple[int, int]] = (32, 64)
 
     def to_dict(self):
@@ -78,7 +78,7 @@ class UNIModelCfg:
             drop_rate=data.get("drop_rate", 0.0),
             embed_dim=tuple(data.get("embed_dim", (96, 192, 384, 768))),
             depths=tuple(data.get("depths", (2, 3, 5, 2))),
-            model_str=data.get("model_str", 'T/T//T/T/T//T/T/T/T/T//T/T'),
+            model_str=data.get("model_str", '[["E", "E"], ["E", "R", "R"], ["T", "T", "T", "T", "T"], ["E", "R"]]'),
             stem_width=data.get("stem_width", (32, 64))
         )
 
@@ -158,7 +158,7 @@ def create_resnet(shape: tuple) -> SequentialModule:
 
 
 class UNIStage(nn.Module):
-    def __init__(self, stage_str: str, in_shape: Tuple[int], channels, depth):
+    def __init__(self, stage_desc: str, in_shape: Tuple[int], channels, depth):
         super().__init__()
         #self.stage_str = stage_str
         self.in_shape = in_shape
@@ -167,9 +167,8 @@ class UNIStage(nn.Module):
 
         stride = 2
         blocks = []
-        block_str_tuple = tuple(stage_str.split("/"))
-        assert len(block_str_tuple) == self.depth, "Inconsistent stage specification. Number of block differs."
-        for block_str in block_str_tuple:
+        assert len(stage_desc) == self.depth, "Inconsistent stage specification. Number of block differs."
+        for block_str in stage_desc:
             if stride == 2:
                 blocks.append(UNIBlock(block_str, in_shape, channels, stride))
             else:
@@ -208,8 +207,8 @@ class UNIBlock(nn.Module):
             self.subblock1 = create_resnet(shape_temp)
             self.subblock2 = SequentialModule(shape_temp, nn.Sequential(Zero(shape_temp)))
         elif ('subblock1' in block_str) and ('subblock2' in block_str):
-            self.subblock1 = node_from_string(block_str[block_str.find("subblock1[")+10:block_str.find("]subblock1")])
-            self.subblock2 = node_from_string(block_str[block_str.find("subblock2[")+10:block_str.find("]subblock2")])
+            self.subblock1 = node_from_string(block_str['subblock1'])
+            self.subblock2 = node_from_string(block_str['subblock2'])
         else:
             NotImplementedError("Unknown block string.")
 
@@ -235,9 +234,6 @@ class UNIBlock(nn.Module):
     def forward(self, x):
         x = self.shortcut(x) + self.subblock1(self.norm1(x))  # different to original, where channels are changed within qkv computation
         return x + self.subblock2(self.norm2(x))
-
-    def to_string(self):
-        return 'subblock1[' + self.subblock1.to_string() + ']subblock1subblock2[' + self.subblock2.to_string() + ']subblock2'
 
     def init(self):
         if self.stride == 2 and len(self.subblock1.sequential) > 0:
@@ -314,9 +310,9 @@ class UNIModel(nn.Module):
 
         in_channels = self.stem.out_chs
         stages = []
-        model_str_tuple = tuple(model_cfg.model_str.split('//'))
+        model_desc = json.loads(model_cfg.model_str)
         for i in range(len(model_cfg.embed_dim)):
-            stages += [UNIStage(model_str_tuple[i], (in_channels, feat_size[0], feat_size[1]), model_cfg.embed_dim[i], model_cfg.depths[i])]
+            stages += [UNIStage(model_desc[i], (in_channels, feat_size[0], feat_size[1]), model_cfg.embed_dim[i], model_cfg.depths[i])]
             feat_size = tuple([(r - 1) // 2 + 1 for r in feat_size])
             in_channels = model_cfg.embed_dim[i]
             self.feature_info += [dict(num_chs=model_cfg.embed_dim[i], reduction=2 ** (i + 2), module=f'stages.{i}')]
@@ -340,7 +336,7 @@ class UNIModel(nn.Module):
         return x
 
     def to_config(self) -> UNIModelCfg:
-        model_str = "//".join("/".join(block.to_string() for block in stage.blocks) for stage in self.stages)
+        model_desc = [[{'subblock1': block.subblock1.to_dict(), 'subblock2': block.subblock2.to_dict()} for block in stage.blocks] for stage in self.stages]
 
         return UNIModelCfg(
             img_size=self.img_size[0],
@@ -348,7 +344,7 @@ class UNIModel(nn.Module):
             drop_rate=getattr(self.head, "drop_rate", 0.0),
             embed_dim=tuple(stage.channels for stage in self.stages),
             depths=tuple(len(stage.blocks) for stage in self.stages),
-            model_str=model_str,
+            model_str=json.dumps(model_desc),
             stem_width=self.stem_width,
         )
 
@@ -428,6 +424,7 @@ NODE_CLASSES = {
     'LayerNorm': LayerNorm,
     'MatmulLeft': MatmulLeft,
     'MatmulRight': MatmulRight,
+    'MaxPool': MaxPool,
     'ConvExp3': ConvExp3,
     'ExpandAndReduce': ExpandAndReduce,
     'ReduceAndExpand': ReduceAndExpand,
@@ -438,12 +435,11 @@ NODE_CLASSES = {
 }
 
 
-def node_from_string(s: str):
+def node_from_string(data: dict):
     """
     Reconstruct any BaseNode-derived node from a JSON string.
     Works recursively for nested modules.
     """
-    data = json.loads(s)
     class_name = data['class']
     shape = tuple(data['shape'])
     params = data.get('params', {})

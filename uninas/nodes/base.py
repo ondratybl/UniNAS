@@ -45,19 +45,20 @@ class BaseNode(nn.Module, ABC):
             f"num_params={self.num_params}"
         )
 
-    def to_string(self) -> str:
+    def to_dict(self) -> dict:
         """
         Serialize the node to a JSON string containing:
         - class name
         - constructor parameters
         - shape
         """
+
         data = {
             'class': self.__class__.__name__,
             'shape': self.shape,
             'params': self._get_constructor_params()
         }
-        return json.dumps(data)
+        return data
 
     def _get_constructor_params(self) -> dict:
         """

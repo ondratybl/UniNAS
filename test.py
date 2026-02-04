@@ -6,9 +6,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description='UNINas Search')
 
     # Evolution parameters
-    parser.add_argument('--num-iter', type=int, default=1000, metavar='N',
+    parser.add_argument('--num-iter', type=int, default=5, metavar='N',
                         help='Number of evolution iterations')
-    parser.add_argument('--init-model', type=str, default='E/R//T/T/T//T/T/T/T/T//T/T',
+    parser.add_argument('--init-model', type=str, default='[["E", "E"], ["E", "R", "R"], ["T", "T", "T", "T", "T"], ["E", "R"]]',
                         metavar='N', help='Initial structure string.')
     parser.add_argument('--flops-min', type=int, default=0, metavar='N',
                         help='Min. number of FLOPs for a model')

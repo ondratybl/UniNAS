@@ -42,7 +42,7 @@ class ForkMerge(BaseNode):  # composite
         return {
             'branches_count': len(self.branches),
             'fork_merge_tuple': self.fork_merge_tuple,
-            'branches': [b.to_string() for b in self.branches]
+            'branches': [b.to_dict() for b in self.branches]
         }
 
 
@@ -75,11 +75,11 @@ class ForkMergeAttention(BaseNode):  # very special
 
     def _get_constructor_params(self):
         return {
-            'branches': [b.to_string() for b in self.branches],
-            'matmullefts': [m.to_string() for m in self.matmullefts],
-            'matmulrights': [m.to_string() for m in self.matmulrights],
-            'connections': [c.to_string() for c in self.connections],
-            'post_branches': [p.to_string() for p in self.post_branches]
+            'branches': [b.to_dict() for b in self.branches],
+            'matmullefts': [m.to_dict() for m in self.matmullefts],
+            'matmulrights': [m.to_dict() for m in self.matmulrights],
+            'connections': [c.to_dict() for c in self.connections],
+            'post_branches': [p.to_dict() for p in self.post_branches]
         }
 
 
@@ -105,7 +105,7 @@ class SequentialModule(BaseNode):  # special
 
     def _get_constructor_params(self):
         return {
-            'modules': [m.to_string() for m in self.sequential]
+            'modules': [m.to_dict() for m in self.sequential]
         }
 
 
@@ -135,7 +135,7 @@ class MergeModule(BaseNode):  # special
     def _get_constructor_params(self):
         params = {'func_merge_str': getattr(self.merge, '__class__', type(self.merge)).__name__.lower()}
         if hasattr(self, 'process'):
-            params['process'] = self.process.to_string()
+            params['process'] = self.process.to_dict()
         return params
 
 
@@ -161,7 +161,7 @@ class ForkModule(BaseNode):  # special
         params = {'func_fork_str': fork_type}
         # if fork is SequentialModule (like convexp3 + chunk), serialize inner sequential
         if isinstance(self.fork, SequentialModule):
-            params['sequential'] = self.fork.to_string()
+            params['sequential'] = self.fork.to_dict()
         return params
 
 
@@ -292,7 +292,7 @@ class ExpandAndReduce(BaseNode):  # composite
 
     def _get_constructor_params(self):
         return {
-            'sequential': self.sequential.to_string(),
+            'sequential': self.sequential.to_dict(),
             'factor': self.resize1.out_channels // self.resize1.in_channels,
             'scheme': 'kaiming_normal'
         }
@@ -314,7 +314,7 @@ class ReduceAndExpand(BaseNode):  # composite
 
     def _get_constructor_params(self):
         return {
-            'sequential': self.sequential.to_string(),
+            'sequential': self.sequential.to_dict(),
             'factor': self.resize1.in_channels // self.resize1.out_channels,
             'scheme': 'kaiming_normal'
         }
@@ -332,5 +332,5 @@ class AvgAndUpsample(BaseNode):  # composite
 
     def _get_constructor_params(self):
         return {
-            'sequential': self.sequential.to_string()
+            'sequential': self.sequential.to_dict()
         }
