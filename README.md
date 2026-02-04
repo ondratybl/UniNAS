@@ -5,7 +5,7 @@ This repository provides a framework to create instances of UNINas search space 
 ## Testing  
 
 ### Initial string format  
-The string is structured by stages, separated by `//`. Each stage contains a sequence of blocks, separated by `/`. We support the following number of stages and blocks: `(2, 3, 5, 2)`, e.g. `MODEL_STRING='[["E", "E"], ["E", "R", "R"], ["T", "T", "T", "T", "T"], ["E", "R"]]'`
+The string is structured by stages and blocks (i.e. a list of lists), i.e. `MODEL_STRING='[["E", "E"], ["E", "R", "R"], ["T", "T", "T", "T", "T"], ["E", "R"]]'`. We support the following number of stages and blocks: `(2, 3, 5, 2)`.
 
 In this example, the respective characters denote blocks corresponding to:  
 - `T` Transformer  

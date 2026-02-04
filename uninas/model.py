@@ -406,6 +406,7 @@ class UNIModel(nn.Module):
 # Registry of all node classes
 NODE_CLASSES = {
     'BatchNorm': BatchNorm,
+    'Dropout': Dropout,
     'ForkMerge': ForkMerge,
     'ForkMergeAttention': ForkMergeAttention,
     'SequentialModule': SequentialModule,
@@ -421,7 +422,9 @@ NODE_CLASSES = {
     'ConvDepth5': ConvDepth5,
     'Copy': Copy,
     'GELU': GELU,
+    'Identity': Identity,
     'LayerNorm': LayerNorm,
+    'Mask': Mask,
     'MatmulLeft': MatmulLeft,
     'MatmulRight': MatmulRight,
     'MaxPool': MaxPool,
@@ -431,6 +434,7 @@ NODE_CLASSES = {
     'AvgAndUpsample': AvgAndUpsample,
     'RelPosBias': RelPosBias,
     'Softmax': Softmax,
+    'Sigmoid': Sigmoid,
     'Zero': Zero
 }
 
