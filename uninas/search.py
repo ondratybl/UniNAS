@@ -104,10 +104,10 @@ def create_new_model(
         # Choose subblock
         if torch.rand(()) < 0.5:
             subblock_idx = 1
-            subblock = blocks[block_idx].block1
+            subblock = blocks[block_idx].subblock1
         else:
             subblock_idx = 2
-            subblock = blocks[block_idx].block2
+            subblock = blocks[block_idx].subblock2
 
         # Choose operation
         op_idx = torch.multinomial(
@@ -132,7 +132,7 @@ def create_new_model(
             PARAMS_FLOOR += params_diff
             PARAMS_TOP -= params_diff
 
-            key = f"block{stage_idx}_{block_idx}_block{subblock_idx}"
+            key = f"block{stage_idx}_{block_idx}_subblock{subblock_idx}"
             model_temp.flops[key] += flops_diff
             model_temp.num_params[key] += params_diff
 
@@ -214,7 +214,6 @@ def add_node(
 
     params_common = {
         "shape": target_seq.shape,
-        "root_shape": target_seq.root_shape,
     }
 
     valid_nodes = []

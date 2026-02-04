@@ -7,11 +7,11 @@ from timm.layers.weight_init import trunc_normal_
 
 
 class RelPosBias(BaseNode):  # simple
-    def __init__(self, shape: tuple, root_shape: tuple):
+    def __init__(self, shape: tuple):
         img_shape = sqrt(tensor(shape[-2:])).tolist()
         assert img_shape[0] % 1 == 0 and img_shape[1] % 1 == 0, 'Implemented only for self-attention-like shapes.'
         img_shape = int(img_shape[0]), int(img_shape[1])
-        super().__init__(shape, root_shape, shape[1]*shape[2], (2 * img_shape[0] - 1) * (2 * img_shape[1] - 1))
+        super().__init__(shape, shape[1]*shape[2], (2 * img_shape[0] - 1) * (2 * img_shape[1] - 1))
 
         H, W = img_shape[0], img_shape[1]
         self.bias_shape = (H * W,) * 2

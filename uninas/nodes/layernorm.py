@@ -43,14 +43,13 @@ class LayerNorm(BaseNode):
     LayerNorm node operating on 2D feature maps.
     """
 
-    def __init__(self, shape: Tuple[int, ...], root_shape: Tuple[int, ...]):
+    def __init__(self, shape: Tuple[int, ...]):
         # FLOPs: mean + variance per element (approx)
         flops = 2 * shape[0] * shape[1] * shape[2]
         num_params = 2 * shape[0]
 
         super().__init__(
             shape=shape,
-            root_shape=root_shape,
             flops=flops,
             num_params=num_params,
         )

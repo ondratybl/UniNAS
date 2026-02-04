@@ -8,7 +8,7 @@ def parse_args():
     # Evolution parameters
     parser.add_argument('--num-iter', type=int, default=1000, metavar='N',
                         help='Number of evolution iterations')
-    parser.add_argument('--init-model', type=str, default='T-T/T-T-T/T-T-T-T-T/T-T',
+    parser.add_argument('--init-model', type=str, default='E/R//T/T/T//T/T/T/T/T//T/T',
                         metavar='N', help='Initial structure string.')
     parser.add_argument('--flops-min', type=int, default=0, metavar='N',
                         help='Min. number of FLOPs for a model')
@@ -38,6 +38,13 @@ def main():
     model = UNIModel(UNIModelCfg(model_str=args.init_model)).to(device)
     criterion = torch.nn.MSELoss()
 
+    # Forward/backward pass with dummy data
+    inputs = torch.rand(4, 3, 224, 224, device=device)
+    targets = torch.randn(4, 1000, device=device)
+    output = model(inputs)
+    loss = criterion(output, targets)
+    loss.backward()
+
     for iteration in range(args.num_iter):
         # Create mutated model
         new_model = create_new_model(
@@ -65,6 +72,21 @@ def main():
         loss.backward()
 
         print(f"Iteration {iteration + 1}/{args.num_iter}: loss={loss.item():.4f}")
+
+    # Model to string
+    model_str = model.to_string()
+
+    # Model from string
+    model_from_str = UNIModel(UNIModelCfg.from_string(model_str))
+
+    # Test model from string
+    output = model_from_str(inputs)
+    loss = criterion(output, targets)
+    loss.backward()
+
+    # Compare models
+    print(sum(p.numel() for p in model.parameters()))
+    print(sum(p.numel() for p in model_from_str.parameters()))
 
 
 if __name__ == "__main__":

@@ -13,13 +13,18 @@ from .maxpool import MaxPool
 from .relposbias import RelPosBias
 from .sigmoid import Sigmoid
 from .softmax import Softmax
-from .special import AvgAndUpsample, ForkMerge, ForkMergeAttention, ExpandAndReduce, ReduceAndExpand, SequentialModule
+from .special import Add, AvgAndUpsample, Chunk, Concat, ConvExp3, Copy, ForkMerge, ForkMergeAttention, ForkModule, ExpandAndReduce, MatmulLeft, MatmulRight, MergeModule, Multiply, ReduceAndExpand, SequentialModule
 from .zero import Zero
 
 __all__ = [
+    "Add",
     "AvgAndUpsample",
     "BaseNode",
     "BatchNorm",
+    "Chunk",
+    "Concat",
+    "ConvExp3",
+    "Copy",
     "Conv1",
     "Conv3",
     "ConvDepth3",
@@ -28,11 +33,16 @@ __all__ = [
     "ExpandAndReduce",
     "ForkMerge",
     "ForkMergeAttention",
+    "ForkModule",
     "GELU",
     "Identity",
     "LayerNorm",
+    "MatmulLeft",
+    "MatmulRight",
     "Mask",
     "MaxPool",
+    "MergeModule",
+    "Multiply",
     "ReduceAndExpand",
     "RelPosBias",
     "SequentialModule",
