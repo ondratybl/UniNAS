@@ -90,4 +90,4 @@ with open(model_path_out, "w") as f:
 ```
 You can load an initial model from JSON, perform a search in the UniNAS search space with specific search parameters, and save the resulting model configuration:
 ```bash
-python test.py --model-init <MODEL_JSON_PATH>
+python examples/test.py --model-init <MODEL_JSON_PATH>
