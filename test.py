@@ -1,6 +1,8 @@
 import argparse
 import torch
 from uninas import UNIModel, UNIModelCfg, create_new_model
+import json
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='UNINas Search')
@@ -8,8 +10,10 @@ def parse_args():
     # Evolution parameters
     parser.add_argument('--num-iter', type=int, default=5, metavar='N',
                         help='Number of evolution iterations')
-    parser.add_argument('--init-model', type=str, default='[["E", "E"], ["E", "R", "R"], ["T", "T", "T", "T", "T"], ["E", "R"]]',
-                        metavar='N', help='Initial structure string.')
+    parser.add_argument('--model-init', type=str, required=True,
+                        help='Path to JSON file containing initial model structure')
+    parser.add_argument('--model-out', type=str, default='last_model.json',
+                        help='Path to save final model structure JSON')
     parser.add_argument('--flops-min', type=int, default=0, metavar='N',
                         help='Min. number of FLOPs for a model')
     parser.add_argument('--flops-max', type=int, default=int(30e9), metavar='N',
@@ -35,7 +39,10 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Initialize model
-    model = UNIModel(UNIModelCfg(model_str=args.init_model)).to(device)
+    with open(args.model_init, "r") as f:
+        model_string = f.read()
+    model_cfg = UNIModelCfg.from_string(model_string)
+    model = UNIModel(model_cfg).to(device)
     criterion = torch.nn.MSELoss()
 
     # Forward/backward pass with dummy data
@@ -75,18 +82,21 @@ def main():
 
     # Model to string
     model_str = model.to_string()
-
-    # Model from string
-    model_from_str = UNIModel(UNIModelCfg.from_string(model_str))
+    with open(args.model_out, "w") as f:
+        json.dump(json.loads(model_str), f, indent=2)
 
     # Test model from string
-    output = model_from_str(inputs)
+    with open(args.model_out, "r") as f:
+        model_string_out = f.read()
+    model_cfg_out = UNIModelCfg.from_string(model_string_out)
+    model_out = UNIModel(model_cfg_out).to(device)
+    output = model_out(inputs)
     loss = criterion(output, targets)
     loss.backward()
 
     # Compare models
     print(sum(p.numel() for p in model.parameters()))
-    print(sum(p.numel() for p in model_from_str.parameters()))
+    print(sum(p.numel() for p in model_out.parameters()))
 
 
 if __name__ == "__main__":
