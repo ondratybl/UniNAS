@@ -1,5 +1,17 @@
+MANIFEST.in
 README.md
 pyproject.toml
+examples/model_coatnet.json
+examples/model_coatnet.json.zip
+examples/model_efficientnet.json
+examples/model_efficientnet.json.zip
+examples/model_example.json
+examples/model_example.json.zip
+examples/model_resnet.json
+examples/model_resnet.json.zip
+examples/model_transformer.json
+examples/model_transformer.json.zip
+examples/test.py
 uninas/__init__.py
 uninas/model.py
 uninas/search.py

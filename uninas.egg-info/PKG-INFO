@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: uninas
-Version: 1.2.0
+Version: 1.3.0
 Summary: model <> string conversions with json
 Author-email: Ondrej Tybl <ondra@tybl.cz>
 Requires-Python: >=3.11
@@ -80,6 +80,7 @@ Additional examples can be found in `examples/`
 
 ### Code
 json-to-model (and back) is performed via
+
 ```python 
 from uninas import UNIModel, UNIModelCfg
 import json
@@ -99,4 +100,4 @@ with open(model_path_out, "w") as f:
 ```
 You can load an initial model from JSON, perform a search in the UniNAS search space with specific search parameters, and save the resulting model configuration:
 ```bash
-python test.py --model-init <MODEL_JSON_PATH>
+python examples/test.py --model-init <MODEL_JSON_PATH>
