@@ -61,7 +61,7 @@ Each character represents a block type:
 
 Moreover, instead of single characters, we can specify a fully custom block from the UniNAS search space via a structured block definition: `{"subblock1": XXX, "subblock2": YYY}`, where `XXX` and `YYY` are recursive graph representations produced via each Node’s `.to_string()` method.
 
-Additional examples can be found in `model_examples/`
+Additional examples can be found in `examples/`
 - `model_coatnet.json` -- CoAtNet, 
 - `model_efficientnet.json` -- EfficientNet, 
 - `model_resnet.json` -- ResNet,
@@ -75,8 +75,8 @@ from uninas import UNIModel, UNIModelCfg
 import json
 
 # Json to model
-model_path_in = 'model_examples/model_example.json'
-model_path_out = 'model_examples/model_example_out.json'
+model_path_in = 'examples/model_example.json'
+model_path_out = 'examples/model_example_out.json'
 with open(model_path_in, "r") as f:
     model_string = f.read()
 model_cfg = UNIModelCfg.from_string(model_string)
